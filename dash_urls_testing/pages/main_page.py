@@ -61,25 +61,48 @@ def get_data(df):
 df_table = get_data(df)
 
 
-def generate_table(df_table):
-    table_header = [
-        html.Thead(html.Tr([html.Th(col) for col in df_table.columns]))
-    ]
-    table_body = []
-    for index, row in df_table.iterrows():
-        # platform_cell = html.Td(row["platforms"])
-        table_row = []
-        for value in row:
-            check_value = int(value.split('[')[1].split('|')[0])
-            color = 'green' if check_value > 0 else 'red' if check_value < 0 else 'black'
-            table_row.append(html.Td(value, style={"color": color}))
-        table_body.append(html.Tr(table_row))
+def generate_table(df):
+    table_rows = []
+    for index, row in df.iterrows():
+        print(index, row)
+        name_cell = html.Td(row['platforms'])
+        # 根据值确定颜色
+        value_color = 'green' if int(row['open_issues'].split('[').split('|')[0]) > 0 else 'red' # 这边不能直接使用open_issues 需要研究一下 iterrows（）的返回值
+        value_cell = html.Td(row["open_issues"], style={"color": value_color})
+        table_rows.append(html.Tr([name_cell, value_cell]))
+        table = dbc.Table(
+            [html.Thead(html.Tr([html.Th("Name"), html.Th("Value")]))] +
+            # 表体
+            [html.Tbody(table_rows)],
+            bordered=True,
+            hover=True,
+            striped=True,
+            responsive=True,
+            className="table"
+        )
+    return table
 
-    return dbc.Table(table_header + [html.Tbody(table_body)], bordered=True, hover=True, responsive=True,
-                     striped=True, style={'margin-right': '5px', 'margin-left': '5px'})
 
+# def generate_table(df_table):
+#     table_header = [
+#         html.Thead(html.Tr([html.Th(col) for col in df_table.columns]))
+#     ]
+#     table_body = []
+#     for index, row in df_table.iterrows():
+#         # platform_cell = html.Td(row["platforms"])
+#         table_row = []
+#         for value in row:
+#             check_value = int(value.split('[')[1].split('|')[0])
+#             color = 'green' if check_value > 0 else 'red' if check_value < 0 else 'black'
+#             table_row.append(html.Td(value, style={"color": color}))
+#         table_body.append(html.Tr(table_row))
+#
+#     return dbc.Table(table_header + [html.Tbody(table_body)], bordered=True, hover=True, responsive=True,
+#                      striped=True, style={'margin-right': '5px', 'margin-left': '5px'})
+
+test_table = generate_table(df_table)
 
 layout = html.Div([
     cards,
-    generate_table(df_table),
+    test_table
 ])
